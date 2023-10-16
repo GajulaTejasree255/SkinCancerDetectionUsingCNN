@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/style.css')}}">
+    <style>
+        /* Set the background color for the body element */
+        body {
+            background-color: papayawhip; /* Change the color as needed */
+        }
+
+        /* Center the form and h3 element */
+        .centered-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            height: 100vh;
+            justify-content: center;
+        }
+
+        input[type="file"], input[type="submit"] {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            padding-bottom: 60px;
+            padding-top: 20px;
+        }
+
+        input[type="submit"]:hover {
+            background-color: pink;
+        }
+
+        h1 {
+            margin-top: 200px;
+            font-size: 50px; /* Adjust the font size as needed */
+            height: 20vh;
+            justify-content: center;
+        }
+
+        h3 {
+            margin-top: 50px;
+            height: 50vh;
+            font-size: 35px;
+            color: blue;
+        }
+
+        label {
+            font-size: 23px; /* Adjust the font size as needed */
+            padding-left: 120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="centered-content">
+        <h1>Skin Cancer Prediction</h1> 
+        <form method="post" enctype="multipart/form-data" class="form-container">
+            <label for="image">Select an Image:</label>
+            <input type="file" name="image" id="image" accept="image/*" onchange="previewImage(this);">
+            <br> <!-- Add a line break before the button -->
+            <br>
+            <input type="submit" value="Predict" class="submit-button">
+        </form>
+        <br>
+        <h3>Prediction: {{prediction}}</h3>
+        
+        <!-- Display the selected image -->
+        <img id="selected-image" src="" alt="Selected Image" style="max-width: 100%; max-height: 300px;">
+    </div>
+
+    <script>
+        // JavaScript function to display the selected image
+        function previewImage(input) {
+            var imgElement = document.getElementById('selected-image');
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    imgElement.src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>
