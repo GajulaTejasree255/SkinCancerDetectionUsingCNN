@@ -1,31 +1,39 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, redirect, url_for
 import os
 from PIL import Image
 import numpy as np
 from tensorflow.keras.models import load_model
 
-app = Flask(__name__)
-
-
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-@app.route("/Users/Tejasree/CNN.py/static/style.css")
-def static_file(filename):
-    return app.send_static_file(filename)
+app = Flask(__name__, static_url_path='/static')
 
 UPLOAD_FOLDER = "/Users/Tejasree/CNN.py/static"
-
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
 # Load your model (make sure to provide the correct model path)
 model = load_model('C:/Users/Tejasree/Downloads/my_model.hdf5')
 
-@app.route("/", methods=["GET", "POST"])
-def upload_predict():
+@app.route("/")
+def index():
+    return render_template('main.html')
+
+@app.route("/user_details", methods=["POST"])
+def user_details():
+    # Handle user details form submission here
+    name = request.form.get('name')
+    age = request.form.get('age')
+    phone = request.form.get('phone')
+    date = request.form.get('date')
+
+    # You can perform any necessary processing or store the user details here
+
+    # Redirect to the image upload page
+    return redirect(url_for('image_upload'))
+
+@app.route("/image_upload", methods=["GET", "POST"])
+def image_upload():
     if request.method == "POST":
+        # Handle image upload and prediction form submission here
         image_file = request.files["image"]
         if image_file:
             image_location = os.path.join(
@@ -33,26 +41,21 @@ def upload_predict():
                 image_file.filename
             )
             image_file.save(image_location)
-            
+
             # Load and preprocess the uploaded image
             img = Image.open(image_location)
-            img = img.resize((224, 224))  # Resize to match your model's input size
+            img = img.resize((224, 224))
             img = np.array(img) / 255.0
-            img = img.reshape((1, 224, 224, 3))  # Reshape to match input shape
-            
+            img = img.reshape((1, 224, 224, 3))
+
             # Make predictions using your model
             prediction = model.predict(img)
             print(prediction)
-            predicted_class = (prediction[0][0])  # Assuming binary classification
+            predicted_class = "Malignant" if prediction[0][0] >= 0.5 else "Benign"
 
-            if prediction[0][0] < 0.5:
-                predicted_class = "Benign"
-            else:
-                predicted_class = "Malignant"
-            
             return render_template("index.html", prediction=predicted_class)
-    
-    return render_template("index.html", prediction=0)
+
+    return render_template("index.html", prediction=None)
 
 if __name__ == "__main__":
     app.run(port=12000, debug=True)
